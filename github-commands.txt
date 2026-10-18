@@ -1,0 +1,228 @@
+Git Commands Reference
+======================
+
+Basic setup:
+
+    git config --global user.name "JPatP"
+    git config --global user.email "gonzaless424@gmail.com"
+
+Common commands:
+
+    git init
+    git add <file>
+    git status
+    git restore --staged <file>
+    git commit -m "message"
+    git log --oneline --decorate
+    git checkout <id>
+    git checkout <master/main>
+    git branch <name>
+    git branch -a
+    git branch -d <branch-name>
+    git checkout <branch-name>
+    git checkout -b <branch-name>
+    git merge <feature-branch>
+    git remote add <identifier> <URL.git>
+    git push <identifier> <target-branch>
+    git push --set-upstream/-u <identifier> <target-branch> 
+    git remote set-url <identifier> <https://secondusername@URL.git>
+    git pull
+    git clone <url>
+    git remote
+    git remote get-url <identifier>
+    git remote -v
+
+Quick pager tip:
+
+    git log -> press q to exit pager
+
+
+Windows Credential Manager & Git
+--------------------------------
+
+What it is:
+
+    Windows Credential Manager stores saved GitHub credentials (usernames/tokens) used by Git for push, pull, fetch, and clone.
+
+Where to find it:
+
+    Control Panel
+    → Credential Manager
+    → Windows Credentials
+    → git:https://github.com
+
+Why it matters:
+
+    git config --global user.name
+    git config --global user.email
+
+only set the commit author, not the authentication identity.
+
+Authentication for GitHub operations comes from the credentials stored in Windows Credential Manager.
+
+Example:
+
+    Credential Manager:
+    User = PattoGit
+
+    Result:
+    git push origin feature/bg-color
+
+    GitHub authenticates as PattoGit,
+    regardless of the local git user.name setting.
+
+Key takeaway:
+
+    Commit Author = git config user.name / git config user.email
+    Push Permission = Windows Credential Manager
+
+If Git uses the wrong account, check Windows Credential Manager first.
+
+
+Git Lessons Learned
+===================
+
+1. git log --oneline --decorate -4
+-----------------------------------
+
+Command:
+
+    git log --oneline --decorate -4
+
+Meaning:
+
+    git log: show commit history
+    --oneline: compact one-line summary per commit
+    --decorate: show branch/tag labels and HEAD
+    -4: show only the latest 4 commits
+
+Recommended daily command:
+
+    git log --oneline --decorate --graph -5
+
+
+2. Normal branch vs detached HEAD
+---------------------------------
+
+Normal branch state:
+
+    0b694c9 (HEAD -> master)
+
+Detached HEAD state:
+
+    0b694c9 (HEAD)
+
+or in git status:
+
+    HEAD detached at 0b694c9
+
+Meaning:
+
+    Normal: HEAD points to a branch.
+    Detached: HEAD points directly to a commit, not a branch.
+
+Safety rule:
+
+    Do not commit, revert, merge, pull, or push while in detached HEAD.
+
+Always check before changing history:
+
+    git status
+
+Good:
+
+    On branch master
+
+Danger:
+
+    HEAD detached at <commit>
+
+
+3. git revert vs git reset
+--------------------------
+
+git revert <commit-id>
+
+    Creates a new commit that undoes the chosen commit.
+    Does not remove the original commit from history.
+
+Use revert when:
+
+    - The commit was already pushed.
+    - Others may have the commit.
+    - You want safe history.
+
+Example:
+
+    3420688 initial commit
+    99859d7 second commit
+    0b694c9 third commit
+    4bfec5c Revert "third commit"
+
+Result:
+
+    File content returns to the previous state,
+    while the original commit still exists.
+
+
+git reset --hard HEAD~1
+
+    Moves the branch pointer backward.
+    Removes the latest commit from visible branch history.
+    Discards working directory changes.
+
+Use reset when:
+
+    - You are experimenting locally.
+    - The commit was not pushed.
+    - You want to remove the latest commit completely.
+
+Warning:
+
+    git reset --hard can delete uncommitted work.
+
+
+4. Correct revert workflow
+--------------------------
+
+Goal:
+
+    Return file content to match the previous commit without deleting history.
+
+Steps:
+
+    git status
+    confirm: On branch master, nothing to commit, working tree clean
+    git revert <commit-id>
+
+Expected result:
+
+    A new revert commit appears.
+    The original commit remains in history.
+    File content matches the earlier commit.
+
+
+5. less pager survival
+----------------------
+
+When git opens a pager like less, signs include:
+
+    (END)
+    :
+    No normal prompt visible
+    Enter scrolls instead of exiting
+
+Useful keys:
+
+    q     - quit pager
+    Space - scroll down one page
+    b     - scroll up one page
+    Enter - scroll down one line
+    /text - search for text
+    n     - next search result
+
+If you get stuck, press q or Esc.
+
+Avoid confusion:
+
+    git log --oneline --decorate -4
